@@ -1,0 +1,88 @@
+
+Summary of  Database project deployment
+
+
+
+Database Project :
+                      
+This is project for database, which facilitates user to done some change is database in without connection to a server instance(offline mode).These can all be accomplished by using the table designer, or the Transact-SOL Editor. You can also write and debug Transact-SOL and CLR objects in the same project. You can use Schema Compare to ensure that your project stays in sync with the production database, and create snapshots for your project in each stage of the development cycle for comparison purposes. While you are working on your database projects in a team-based environment, you can employ version control for all the files. After your database project has been developed, tested and debugged, you can hand off your project to authorized personnel to be published to a production environment. 
+
+Advantage 
+
+* verify query statements (T-SQL)
+* validate data/column types
+* prepare repeatable build process
+* apply standards & best practices onto your enterprise or customer
+* create an automated process of deployment
+
+
+How to deploy it on Azure with CI/CD
+
+Step I : 
+
+ Need a build  repeatable process
+
+
+
+
+
+* DACPAC is the artifact produced which holds the definition of your database. It's the output of an SSDT project. 
+
+A build = DACPAC = your database definition.
+
+Maintain all of your databases by deploying a new DACPAC. No manual changes, if possible!
+
+A successful release = a successful successive deployment of the dacpac across all your environments 
+
+ Create a SQL server Database project – Continuous Deployment with existing database and deploy it.
+
+
+Step 2 : Create Build and Release Pipe Line in Azure 
+
+
+I) Build PipeLine 
+
+Build pipeline looks like this 
+
+
+  
+
+
+
+
+
+a) Visual Studio Build : 
+ This task will build the whole solution while. If your database project is configured properly it will produce a DACPAC file which becomes the main artifact containing the definition of the entire database. 
+
+b) Copy Files to the staging directory
+This will copy the DACPAC file into the artifacts staging directory. 
+
+c) Publish Artifact
+This produces the end result of the build which will be consumed by the Release pipeline.
+
+d) DacPac Schema Compare 
+As its name suggests, this tasks shows the schema changes of your database between two builds and outputs the results to the build summary.
+
+
+II) Build Release Pipeline 
+
+
+
+
+
+a) Set artifacts
+Add a new artifact – choose Build as an artifact source type and select the Build pipeline producing it.
+
+b) Azure Deployment 
+
+c) ARM Output 
+ARM Outputs are pretty useful because it lets you use the output values of an ARM template as variables in Azure Pipelines. ARM templates are the thing forming up your resource names based on some input parameters, and they also have direct access to Microsoft Azure. 
+
+d) Azure SQL Database Deployment
+And finally, that is the task executing the actual database deployment. You give it a DACPAC file and it deploys all your database changes using SqlPackage.exe under the hood 
+
+e) Set up environments
+Having this reusable definition, we can go ahead and clone the stage in order to define multiple environments. Add as many as you would like. And not only that, you can create the relationships between them, the pre- and post-deployment conditions, approvals  
+
+
+
